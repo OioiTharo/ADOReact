@@ -1,9 +1,8 @@
 "use client"; 
 
 import React, { useEffect, useState } from 'react';
-//import axios from 'axios';
+import axios from 'axios';
 import styled from 'styled-components';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import Tituloh2 from '../../components/titulos';
 import Divs from '../../components/Divs';
 import DivTarefas from '../../components/DivTarefas.js';
@@ -57,16 +56,34 @@ const CustomCheckbox = styled.span`
 `;
 
 const Home = () => {
-  const [tasks, setTasks] = useState([
-    { id: 1, name: 'Comprar pão', completed: true},
-    { id: 2, name: 'Estudar React', completed: false},
-    { id: 3, name: 'Lavar o carro', completed: false},
+  const [tasks, setTasks] = useState([]);
+
+  const exampleTasks = [
+    { id: 1, name: 'Comprar pão', completed: true },
+    { id: 2, name: 'Estudar React', completed: false },
+    { id: 3, name: 'Lavar o carro', completed: false },
     { id: 4, name: 'Fazer compras', completed: false },
-    { id: 5, name: 'Estudar JavaScript', completed: false},
+    { id: 5, name: 'Estudar JavaScript', completed: false },
     { id: 6, name: 'Ir à academia', completed: false },
     { id: 7, name: 'Limpar a casa', completed: false },
-    { id: 8, name: 'Preparar jantar', completed: false},
-  ]);
+    { id: 8, name: 'Preparar jantar', completed: false },
+  ];
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/tasks'); 
+        const apiTasks = response.data; 
+        
+        setTasks([...exampleTasks, ...apiTasks]);
+      } catch (error) {
+        console.error('Erro ao buscar as tarefas:', error);
+        setTasks(exampleTasks);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   const handleCheckboxChange = (taskId) => {
     const updatedTasks = tasks.map((task) => {

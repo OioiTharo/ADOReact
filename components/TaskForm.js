@@ -12,37 +12,36 @@ const FormContainer = styled.form`
     display: flex;
     flex-direction: column;
     margin: 20px;
-    item-align: center;
+    align-items: center; /* Corrigido para align-items */
 `;
 
 const Input = styled.input`
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 400px;
-  font-family: "Jost", sans-serif;
-  font-size: 20px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 400px;
+    font-family: "Jost", sans-serif;
+    font-size: 20px;
 `;
 
 const TextArea = styled.textarea`
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 400px;
-  font-family: "Jost", sans-serif;
-  font-size: 20px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 400px;
+    font-family: "Jost", sans-serif;
+    font-size: 20px;
 `;
 
 const Button = styled.button`
-  padding: 10px;
-  background-color: #6ca6a3;
-  color: white;
-  border: none;
-  border-radius: 100%;
-  width: 50px;
-  margin-left: 370px;
+    padding: 10px;
+    background-color: #6ca6a3;
+    color: white;
+    border: none;
+    border-radius: 100px; 
+    margin-left: 380px;
 `;
 
 const TaskForm = ({ onTaskAdded }) => {
@@ -82,7 +81,9 @@ const TaskForm = ({ onTaskAdded }) => {
                     onChange={(e) => setTaskDescription(e.target.value)}
                     required
                 />
-                <Button type="submit"><i className="material-symbols-outlined">add</i></Button>
+                <Button type="submit">
+                    <i className="material-symbols-outlined">add</i>
+                </Button>
             </FormContainer>
         </Container>
     );
