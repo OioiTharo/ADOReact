@@ -6,7 +6,7 @@ import LogoImage from '../src/app/img/lista.png';
 
 const NavBar = styled.nav`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   background-color: #856a6a;
   padding: 10px 20px;
@@ -14,8 +14,8 @@ const NavBar = styled.nav`
   border-radius: 6px;
 `;
 
-const Logo = styled.img`
-  height: 40px;
+const Logo = styled.i`
+  color: white;
 `;
 
 const Menu = styled.ul`
@@ -28,13 +28,14 @@ const Menu = styled.ul`
 const MenuItem = styled.li`
   color: white;
   font-family: "Jost", sans-serif;
-
-  &:hover {
-    color: #e5e6b8;
-  }
+  text-decoration: none;
 
   &.active {
     color: #e5e6b8;
+  }
+  
+  &.desactive {
+    color: white;
   }
 `;
 
@@ -43,13 +44,10 @@ const NavBarComponent = () => {
 
   return (
     <NavBar>
-      <Link href="/" passHref>
-        <Logo src={LogoImage} alt="Logo" />
-      </Link>
       <Menu>
         <Link href="/" passHref>
           <MenuItem
-            className={activeMenu === '/' ? 'active' : ''}
+            className={activeMenu === '/' ? 'active' : 'desactive'}
             onClick={() => updateActiveMenu('/')}
           >
             Home
@@ -57,7 +55,7 @@ const NavBarComponent = () => {
         </Link>
         <Link href="/concluidas" passHref>
           <MenuItem
-            className={activeMenu === '/concluidas' ? 'active' : ''}
+            className={activeMenu === '/concluidas' ? 'active' : 'desactive'}
             onClick={() => updateActiveMenu('/concluidas')}
           >
             Concluídas
@@ -65,7 +63,7 @@ const NavBarComponent = () => {
         </Link>
         <Link href="/pendentes" passHref>
           <MenuItem
-            className={activeMenu === '/pendentes' ? 'active' : ''}
+            className={activeMenu === '/pendentes' ? 'active' : 'desactive'}
             onClick={() => updateActiveMenu('/pendentes')}
           >
             Pendentes
@@ -73,7 +71,7 @@ const NavBarComponent = () => {
         </Link>
         <Link href="/adicionar" passHref>
           <MenuItem
-            className={activeMenu === '/adicionar' ? 'active' : ''}
+            className={activeMenu === '/adicionar' ? 'active' : 'desactive'}
             onClick={() => updateActiveMenu('/adicionar')}
           >
             Adicionar Tarefa
