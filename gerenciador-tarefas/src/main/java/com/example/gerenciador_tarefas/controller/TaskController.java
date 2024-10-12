@@ -1,8 +1,8 @@
 package com.example.gerenciador_tarefas.controller;
 
 import com.example.gerenciador_tarefas.model.Task;
-import com.example.gerenciador_tarefas.service.TaskService;
-import lombok.RequiredArgsConstructor;
+import com.example.gerenciador_tarefas.repository.TaskRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,24 +10,26 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
-@CrossOrigin(origins = "http://localhost:3000")
 public class TaskController {
 
-    private final TaskService taskService;
-
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
+    @Autowired
+    private TaskRepository taskRepository;
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
-        List<Task> tasks = taskService.getAllTasks();
-        return ResponseEntity.ok(tasks);
+    public List<Task> getAllTasks() {
+        return taskRepository.findAll();
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
-        Task createdTask = taskService.createTask(task);
-        return ResponseEntity.ok(createdTask);
+    public ResponseEntity<Task> addTask(@RequestBody Task task) {
+        Task savedTask = taskRepository.save(task);
+        return ResponseEntity.ok(savedTask);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> getTaskById(@PathVariable String id) {
+        return taskRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

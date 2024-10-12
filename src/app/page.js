@@ -56,33 +56,25 @@ const CustomCheckbox = styled.span`
 `;
 
 const Home = () => {
+  
   const [tasks, setTasks] = useState([]);
 
-  const exampleTasks = [
-    { id: 1, name: 'Comprar pão', completed: true },
-    { id: 2, name: 'Estudar React', completed: false },
-    { id: 3, name: 'Lavar o carro', completed: false },
-    { id: 4, name: 'Fazer compras', completed: false },
-    { id: 5, name: 'Estudar JavaScript', completed: false },
-    { id: 6, name: 'Ir à academia', completed: false },
-    { id: 7, name: 'Limpar a casa', completed: false },
-    { id: 8, name: 'Preparar jantar', completed: false },
-  ];
+  
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/tasks');
+      setTasks([...tasks, ...response.data]); 
+    } catch (error) {
+      console.error('Erro ao buscar as tarefas da API:', error);
+    }
+  };
+
+  const handleTaskAdded = (newTask) => {
+    setTasks((prevTasks) => [...prevTasks, newTask]); 
+  };
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/tasks'); 
-        const apiTasks = response.data; 
-        
-        setTasks([...exampleTasks, ...apiTasks]);
-      } catch (error) {
-        console.error('Erro ao buscar as tarefas:', error);
-        setTasks(exampleTasks);
-      }
-    };
-
-    fetchTasks();
+    fetchTasks(); 
   }, []);
 
   const handleCheckboxChange = (taskId) => {

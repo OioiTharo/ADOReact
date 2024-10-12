@@ -1,26 +1,27 @@
 package com.example.gerenciador_tarefas.service;
 
 import com.example.gerenciador_tarefas.model.Task;
+import com.example.gerenciador_tarefas.repository.TaskRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TaskService {
 
-    private final List<Task> tasks = new ArrayList<>(); // Lista de tarefas simulando um banco de dados em memória
+    private final TaskRepository taskRepository;
 
-    // Retorna todas as tarefas
+    @Autowired
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+    }
+
     public List<Task> getAllTasks() {
-        return tasks;
+        return taskRepository.findAll();
     }
 
-    // Cria uma nova tarefa e a adiciona à lista
     public Task createTask(Task task) {
-        tasks.add(task);
-        return task; // Retorna a tarefa recém-criada
+        return taskRepository.save(task);
     }
-
-    // Se necessário, você pode adicionar mais métodos, como deletar ou atualizar uma tarefa
 }
