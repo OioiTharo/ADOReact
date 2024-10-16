@@ -1,8 +1,6 @@
-import React from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
 import { useNavbar } from "../src/app/context/NavbarContext.js";
-import LogoImage from '../src/app/img/lista.png'; 
 
 const NavBar = styled.nav`
   display: flex;

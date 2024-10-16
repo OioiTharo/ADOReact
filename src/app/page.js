@@ -105,7 +105,6 @@ const Home = () => {
               <Tituloh4 completed={task.completed}>
                 {task.name}
               </Tituloh4>
-              <p>{task.description}</p>
             </div>
           </TaskItem>
         ))}
