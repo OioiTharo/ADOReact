@@ -90,7 +90,7 @@ const Home = () => {
   return (
     <Divs>
       <DivTarefas>
-      <Tituloh2>Tarefas</Tituloh2>
+      <Tituloh2>Tarefas do dia</Tituloh2>
         {tasks.map((task) => (
           <TaskItem key={task.id} completed={task.completed}>
           <label>

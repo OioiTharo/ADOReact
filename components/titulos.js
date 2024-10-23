@@ -7,4 +7,5 @@ const Tituloh2 = styled.h2`
 `;
 
 export default Tituloh2;
+
 //https://paletadecores.com/paleta/e5e6b8/c6d4b8/6ca6a3/856a6a/9c325c/

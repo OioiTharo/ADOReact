@@ -1,4 +1,3 @@
-import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import styled from 'styled-components';
 import Tituloh2 from './titulos';
@@ -11,7 +10,6 @@ const ChartContainer = styled.div`
   height: 300px; 
   text-align: center;
 `;
-
 
 const Grafico = ({ tasks }) => {
   const completedTasks = tasks.filter(task => task.completed).length;
@@ -30,7 +28,7 @@ const Grafico = ({ tasks }) => {
   return (
     <ChartContainer>
       <Tituloh2>Progresso</Tituloh2>
-      <Pie data={data} />
+      {tasks.length > 0 ? <Pie data={data} /> : <p>Nenhuma tarefa disponível.</p>}
     </ChartContainer>
   );
 };

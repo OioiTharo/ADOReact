@@ -31,50 +31,24 @@ const MenuItem = styled.li`
   &.active {
     color: #e5e6b8;
   }
-  
-  &.desactive {
-    color: white;
-  }
 `;
 
 const NavBarComponent = () => {
-  const { activeMenu, updateActiveMenu } = useNavbar(); // Usando o contexto
+  const { activeMenu, updateActiveMenu } = useNavbar();
 
   return (
     <NavBar>
       <Menu>
-        <Link href="/" passHref>
-          <MenuItem
-            className={activeMenu === '/' ? 'active' : 'desactive'}
-            onClick={() => updateActiveMenu('/')}
-          >
-            Home
-          </MenuItem>
-        </Link>
-        <Link href="/concluidas" passHref>
-          <MenuItem
-            className={activeMenu === '/concluidas' ? 'active' : 'desactive'}
-            onClick={() => updateActiveMenu('/concluidas')}
-          >
-            Concluídas
-          </MenuItem>
-        </Link>
-        <Link href="/pendentes" passHref>
-          <MenuItem
-            className={activeMenu === '/pendentes' ? 'active' : 'desactive'}
-            onClick={() => updateActiveMenu('/pendentes')}
-          >
-            Pendentes
-          </MenuItem>
-        </Link>
-        <Link href="/adicionar" passHref>
-          <MenuItem
-            className={activeMenu === '/adicionar' ? 'active' : 'desactive'}
-            onClick={() => updateActiveMenu('/adicionar')}
-          >
-            Adicionar Tarefa
-          </MenuItem>
-        </Link>
+        {['/', '/semana', '/adicionar'].map((path, index) => (
+          <Link key={index} href={path} passHref>
+            <MenuItem
+              className={activeMenu === path ? 'active' : ''}
+              onClick={() => updateActiveMenu(path)}
+            >
+              {path === '/' ? 'Dia' : path.charAt(1).toUpperCase() + path.slice(2)}
+            </MenuItem>
+          </Link>
+        ))}
       </Menu>
     </NavBar>
   );
