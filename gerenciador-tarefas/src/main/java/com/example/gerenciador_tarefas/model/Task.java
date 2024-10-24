@@ -10,14 +10,16 @@ public class Task {
     private String id;
     private String name; 
     private String description;
+    private Boolean semana;
 
     public Task() {
     }
 
-    public Task(String id, String name, String description) {
+    public Task(String id, String name, String description, Boolean semana) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.semana = semana;
     }
 
     // Getters
@@ -33,6 +35,10 @@ public class Task {
         return description;
     }
 
+    public Boolean getSemana() {
+        return semana;
+    }
+
     // Setters
     public void setId(String id) {
         this.id = id;
@@ -44,5 +50,9 @@ public class Task {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setSemana(Boolean semana) {
+        this.semana = semana;
     }
 }

@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 
 import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -36,11 +36,10 @@ const DivDrag = styled.div`
 `;
 
 const Tituloh3 = styled.h3`
-    color: #9c325c;
-    font-family: "Jost", sans-serif;
-    margin-left: 10px;
+  color: #9c325c;
+  font-family: "Jost", sans-serif;
+  margin-left: 10px;
 `;
-
 
 const Semana = () => {
   const [tasks, setTasks] = useState({
@@ -52,17 +51,20 @@ const Semana = () => {
   const fetchTasks = async () => {
     try {
       const response = await axios.get('http://localhost:8080/tasks');
+      const filteredTasks = response.data.filter(task => task.semana === true);
+
       const organizedTasks = {
-        pendentes: response.data.map(task => ({
-            id: task.id || Math.random().toString(36).substr(2, 9), 
-            content: task.name, 
-            description: task.description, 
-            status: 'pendente', 
-          })),
+        pendentes: filteredTasks.map(task => ({
+          id: task.id || Math.random().toString(36).substr(2, 9),
+          content: task.name,
+          description: task.description,
+          status: 'pendente',
+        })),
         fazendo: [],
         feitas: [],
       };
-      setTasks(organizedTasks); 
+
+      setTasks(organizedTasks);
     } catch (error) {
       console.error('Erro ao buscar as tarefas da API:', error);
     }
@@ -108,9 +110,8 @@ const Semana = () => {
                     <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
                       {(provided) => (
                         <Task ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-
                           <h4>{task.content}</h4>
-                          <p>{task.description}</p> 
+                          <p>{task.description}</p>
                         </Task>
                       )}
                     </Draggable>

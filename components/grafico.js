@@ -9,6 +9,7 @@ const ChartContainer = styled.div`
   width: 300px;  
   height: 300px; 
   text-align: center;
+  margin-left: 100px;
 `;
 
 const Grafico = ({ tasks }) => {
