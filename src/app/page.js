@@ -71,7 +71,14 @@ const StyledDivTarefas = styled.div`
 const TaskDescricao = styled.p`
   color: ${({ completed }) => (completed ? '#fff' : '#9c325c')};
   font-family: "Jost", sans-serif;
-`
+`;
+
+// Novo estilo para centralizar o título
+const TitleContainer = styled.div`
+  text-align: center; /* Centraliza o texto */
+  width: 100%; /* Ocupa toda a largura */
+  margin-bottom: 20px; /* Espaçamento abaixo do título */
+`;
 
 const Home = () => {
   const [tasks, setTasks] = useState([]);
@@ -107,7 +114,9 @@ const Home = () => {
   return (
     <Divs>
       <StyledDivTarefas>
-        <Tituloh2>Tarefas do dia</Tituloh2>
+        <TitleContainer>
+          <Tituloh2>Tarefas do dia</Tituloh2>
+        </TitleContainer>
         {tasks.map((task) => (
           <TaskItem key={task.id} completed={task.completed}>
             <label>
@@ -118,7 +127,7 @@ const Home = () => {
               />
               <CustomCheckbox completed={task.completed} />
             </label>
-            <DivTask> {/* Aqui está o contêiner que mantém o título e a descrição */}
+            <DivTask>
               <Tituloh4 completed={task.completed}>
                 {task.name}
               </Tituloh4>
