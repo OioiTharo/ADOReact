@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import axios from 'axios';
+import styled from 'styled-components';
 import Tituloh2 from '../../../components/titulos';
 
 const Container = styled.div`
@@ -18,7 +18,22 @@ const Column = styled.div`
   width: 30%;
   max-height: 500px;
   margin: 20px;
-  overflow-y: scroll;
+  overflow-y: auto;
+  
+  /* Melhorando a aparência da scrollbar */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 4px;
+  }
 `;
 
 const Task = styled.div`
@@ -28,6 +43,16 @@ const Task = styled.div`
   margin-bottom: 8px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #5a8e8b;
+  }
+  
+  /* Adicionando estilo quando arrastando */
+  &:active {
+    transform: scale(1.02);
+  }
 `;
 
 const DivDrag = styled.div`
@@ -39,6 +64,20 @@ const Tituloh3 = styled.h3`
   color: #9c325c;
   font-family: "Jost", sans-serif;
   margin-left: 10px;
+  margin-bottom: 15px;
+`;
+
+const TaskContent = styled.h4`
+  margin: 8px 0;
+`;
+
+const TaskDescription = styled.p`
+  font-size: 0.9em;
+  opacity: 0.9;
+`;
+
+const DroppableArea = styled.div`
+  min-height: 200px;
 `;
 
 const Semana = () => {
@@ -55,7 +94,7 @@ const Semana = () => {
 
       const organizedTasks = {
         pendentes: filteredTasks.map(task => ({
-          id: task.id || Math.random().toString(36).substr(2, 9),
+          id: task.id?.toString() || Math.random().toString(36).substr(2, 9),
           content: task.name,
           description: task.description,
           status: 'pendente',
@@ -77,7 +116,10 @@ const Semana = () => {
   const onDragEnd = (result) => {
     const { destination, source } = result;
 
-    if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
+    // Se não houver destino ou o item for solto no mesmo lugar
+    if (!destination || 
+        (destination.droppableId === source.droppableId && 
+         destination.index === source.index)) {
       return;
     }
 
@@ -101,22 +143,41 @@ const Semana = () => {
       <Tituloh2>Tarefas da semana</Tituloh2>
       <DragDropContext onDragEnd={onDragEnd}>
         <Container>
-          {Object.keys(tasks).map(column => (
-            <Droppable key={column} droppableId={column}>
-              {(provided) => (
-                <Column ref={provided.innerRef} {...provided.droppableProps}>
-                  <Tituloh3>{column.charAt(0).toUpperCase() + column.slice(1)}</Tituloh3>
-                  {tasks[column].map((task, index) => (
-                    <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                      {(provided) => (
-                        <Task ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                          <h4>{task.content}</h4>
-                          <p>{task.description}</p>
-                        </Task>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
+          {Object.keys(tasks).map(columnId => (
+            <Droppable key={columnId} droppableId={columnId}>
+              {(provided, snapshot) => (
+                <Column
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  <Tituloh3>
+                    {columnId.charAt(0).toUpperCase() + columnId.slice(1)}
+                  </Tituloh3>
+                  <DroppableArea>
+                    {tasks[columnId].map((task, index) => (
+                      <Draggable
+                        key={task.id}
+                        draggableId={task.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <Task
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={{
+                              ...provided.draggableProps.style,
+                              opacity: snapshot.isDragging ? 0.8 : 1,
+                            }}
+                          >
+                            <TaskContent>{task.content}</TaskContent>
+                            <TaskDescription>{task.description}</TaskDescription>
+                          </Task>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </DroppableArea>
                 </Column>
               )}
             </Droppable>
