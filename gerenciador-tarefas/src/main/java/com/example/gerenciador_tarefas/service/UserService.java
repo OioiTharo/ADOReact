@@ -15,6 +15,9 @@ public class UserService {
     private UserRepository userRepository;
 
     public User createUser(User user) {
+        if (emailExists(user.getEmail())) {
+            throw new RuntimeException("Email já está em uso");
+        }
         return userRepository.save(user);
     }
 
@@ -27,21 +30,30 @@ public class UserService {
     }
 
     public Optional<User> updateUser(String id, User userDetails) {
-        return userRepository.findById(id)
-                .map(existingUser -> {
-                    existingUser.setUsuario(userDetails.getUsuario());
-                    existingUser.setEmail(userDetails.getEmail());
-                    existingUser.setSenha(userDetails.getSenha());
-                    return userRepository.save(existingUser);
-                });
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            User existingUser = user.get();
+            existingUser.setUsuario(userDetails.getUsuario());
+            existingUser.setEmail(userDetails.getEmail());
+            existingUser.setSenha(userDetails.getSenha());
+            return Optional.of(userRepository.save(existingUser));
+        }
+        return Optional.empty();
     }
 
     public boolean deleteUser(String id) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    userRepository.delete(user);
-                    return true;
-                })
-                .orElse(false);
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean emailExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

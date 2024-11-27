@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import Tituloh2 from '../../../components/titulos';
 import Divs from '../../../components/Divs';
 import Grafico from '../../../components/grafico';
-import api from '@/lib/api';
 
 const Tituloh4 = styled.h4`
   color: ${({ completed }) => (completed ? '#fff' : '#9c325c')};
@@ -84,15 +83,15 @@ const TitleContainer = styled.div`
 const Home = () => {
   const [tasks, setTasks] = useState([]);
 
-    const fetchTasks = async () => {
-        try {
-          const response = await api.get('/api/tasks');
-          const filteredTasks = response.data.filter(task => task.semana === false);
-          setTasks(filteredTasks)
-      } catch (error) {
-        console.error('Erro ao buscar as tarefas da API:', error);
-      }
-    };
+  const fetchTasks = async () => {
+    try {
+      const response = await api.get('/api/tasks');
+      const filteredTasks = response.data.filter(task => task.semana === false);
+      setTasks(filteredTasks);
+    } catch (error) {
+      console.error('Erro ao buscar as tarefas da API:', error);
+    }
+  };
 
   const handleTaskAdded = (newTask) => {
     setTasks((prevTasks) => [...prevTasks, newTask]);

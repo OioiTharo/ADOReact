@@ -38,14 +38,14 @@ const NavBarComponent = () => {
   return (
     <NavBar>
       <Menu>
-        {['/', '/semana', '/adicionar', '/login'].map((path, index) => (
+        {['/',  '/dia', '/semana', '/adicionar'].map((path, index) => (
           <li key={index}>
             <Link href={path} passHref>
               <MenuItem
                 className={activeMenu === path ? 'active' : ''}
                 onClick={() => updateActiveMenu(path)}
               >
-                {path === '/' ? 'Dia' : path.charAt(1).toUpperCase() + path.slice(2)}
+                {path === '/' ? 'Login' : path.charAt(1).toUpperCase() + path.slice(2)}
               </MenuItem>
             </Link>
           </li>

@@ -1,144 +1,162 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
-import Tituloh2 from '../../components/titulos';
-import Divs from '../../components/Divs';
-import Grafico from '../../components/grafico';
+import api from './lib/api';
 
-const Tituloh4 = styled.h4`
-  color: ${({ completed }) => (completed ? '#fff' : '#9c325c')};
-  font-family: "Jost", sans-serif;
-  text-align: left; 
-  margin-bottom: -10px;
-`;
-
-const TaskItem = styled.div`
-  border: 0px solid #ccc;
-  border-radius: 6px;
-  margin: 10px ;
-  background-color: ${({ completed }) => (completed ? '#c6d4b8' : '#fff')};
+const Container = styled.div`
   display: flex;
-  align-items: flex-start; 
-  width: 100%; 
-`;
-
-const TaskCheckbox = styled.input`
-  display: none;
-`;
-
-const CustomCheckbox = styled.span`
-  display: inline-block;
-  width: 15px;
-  height: 15px;
-  border-radius: 5px;
-  border: 2px solid #ccc;
-  background-color: ${({ completed }) => (completed ? '#9c325c' : '#fff')};
-  transition: background-color 0.3s, border-color 0.3s;
-  position: relative;
-  margin: 10px;
-
-  ${TaskCheckbox}:checked + & {
-    background-color: #9c325c;
-  }
-
-  ${TaskCheckbox}:checked + &::after {
-    content: '';
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    width: 5px;
-    height: 5px;
-    background-color: #fff;
-    border-radius: 1px;
-  }
-`;
-
-const DivTask = styled.div`
-  display: flex;
-  flex-direction: column; 
-  justify-content: flex-start; 
-`;
-
-const StyledDivTarefas = styled.div`
-  display: flex;
-  flex-direction: column; 
-  align-items: flex-start; 
-  padding: 10px; 
-`;
-
-const TaskDescricao = styled.p`
-  color: ${({ completed }) => (completed ? '#fff' : '#9c325c')};
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  background-color: #f0f0f0;
   font-family: "Jost", sans-serif;
 `;
 
-// Novo estilo para centralizar o título
-const TitleContainer = styled.div`
-  text-align: center; /* Centraliza o texto */
-  width: 100%; /* Ocupa toda a largura */
-  margin-bottom: 20px; /* Espaçamento abaixo do título */
+const Form = styled.form`
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
 `;
 
-const Home = () => {
-  const [tasks, setTasks] = useState([]);
+const Title = styled.h2`
+  text-align: center;
+  margin-bottom: 20px;
+`;
 
-  const fetchTasks = async () => {
+const Input = styled.input`
+  width: 92%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+const Button = styled.button`
+  width: 100%;
+  padding: 10px;
+  background-color: #6ca6a3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #4a8280;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: #d32f2f;
+  text-align: center;
+  margin: 10px 0;
+  font-size: 14px;
+`;
+
+const Auth = () => {
+  const router = useRouter();
+  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    usuario: '',
+    email: '',
+    senha: ''
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await axios.get('http://localhost:8080/tasks');
-      const filteredTasks = response.data.filter(task => task.semana === false);
-      setTasks(filteredTasks);
+        const response = await api.post('/api/auth/login', {
+            email: formData.email,
+            senha: formData.senha
+        });
+        
+        if (response.data && response.data.token) {
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            router.push('/');
+        }
     } catch (error) {
-      console.error('Erro ao buscar as tarefas da API:', error);
+        console.error('Erro:', error);
+        setError(error.response?.data?.message || 'Erro ao fazer login');
     }
-  };
+};
 
-  const handleTaskAdded = (newTask) => {
-    setTasks((prevTasks) => [...prevTasks, newTask]);
-  };
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
-  const handleCheckboxChange = (taskId) => {
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === taskId) {
-        return { ...task, completed: !task.completed };
-      }
-      return task;
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setError('');
+    setFormData({
+      usuario: '',
+      email: '',
+      senha: ''
     });
-    setTasks(updatedTasks);
   };
 
   return (
-    <Divs>
-      <StyledDivTarefas>
-        <TitleContainer>
-          <Tituloh2>Tarefas do dia</Tituloh2>
-        </TitleContainer>
-        {tasks.map((task) => (
-          <TaskItem key={task.id} completed={task.completed}>
-            <label>
-              <TaskCheckbox
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => handleCheckboxChange(task.id)}
-              />
-              <CustomCheckbox completed={task.completed} />
-            </label>
-            <DivTask>
-              <Tituloh4 completed={task.completed}>
-                {task.name}
-              </Tituloh4>
-              <TaskDescricao completed={task.completed}>{task.description}</TaskDescricao>
-            </DivTask>
-          </TaskItem>
-        ))}
-      </StyledDivTarefas>
-      <Grafico tasks={tasks} />
-    </Divs>
+    <Container>
+      <Form onSubmit={handleSubmit}>
+        <Title>{isLogin ? 'Login' : 'Cadastro'}</Title>
+        
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+        
+        {!isLogin && (
+          <Input
+            type="text"
+            name="usuario"
+            placeholder="Nome de usuário"
+            value={formData.usuario}
+            onChange={handleInputChange}
+            required
+          />
+        )}
+        
+        <Input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleInputChange}
+          required
+        />
+        
+        <Input
+          type="password"
+          name="senha"
+          placeholder="Senha"
+          value={formData.senha}
+          onChange={handleInputChange}
+          required
+        />
+        
+        <Button type="submit">
+          {isLogin ? 'Entrar' : 'Cadastrar'}
+        </Button>
+        
+        <p style={{ textAlign: 'center', marginTop: '10px' }}>
+          {isLogin ? 'Não tem uma conta?' : 'Já tem uma conta?'}
+          <span
+            onClick={toggleMode}
+            style={{ color: '#6ca6a3', cursor: 'pointer', marginLeft: '5px' }}
+          >
+            {isLogin ? 'Cadastre-se' : 'Faça login'}
+          </span>
+        </p>
+      </Form>
+    </Container>
   );
 };
 
-export default Home;
+export default Auth;

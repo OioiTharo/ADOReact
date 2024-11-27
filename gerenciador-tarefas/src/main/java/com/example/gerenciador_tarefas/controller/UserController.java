@@ -11,16 +11,40 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User newUser = userService.createUser(user);
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        try {
+            // Validações
+            if (user.getEmail() == null || user.getEmail().isEmpty()) {
+                return ResponseEntity.badRequest().body("Email é obrigatório");
+            }
+            if (user.getSenha() == null || user.getSenha().isEmpty()) {
+                return ResponseEntity.badRequest().body("Senha é obrigatória");
+            }
+            if (user.getUsuario() == null || user.getUsuario().isEmpty()) {
+                return ResponseEntity.badRequest().body("Nome de usuário é obrigatório");
+            }
+
+            // Verificar se email já existe
+            if (userService.emailExists(user.getEmail())) {
+                return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("Email já está em uso");
+            }
+
+            User newUser = userService.createUser(user);
+            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro ao criar usuário: " + e.getMessage());
+        }
     }
 
     @GetMapping
