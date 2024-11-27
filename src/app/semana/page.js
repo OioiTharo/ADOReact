@@ -1,145 +1,191 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import axios from 'axios';
 import styled from 'styled-components';
 import Tituloh2 from '../../../components/titulos';
-import Divs from '../../../components/Divs';
-import Grafico from '../../../components/grafico';
-import api from '@/lib/api';
 
-const Tituloh4 = styled.h4`
-  color: ${({ completed }) => (completed ? '#fff' : '#9c325c')};
-  font-family: "Jost", sans-serif;
-  text-align: left; 
-  margin-bottom: -10px;
-`;
-
-const TaskItem = styled.div`
-  border: 0px solid #ccc;
-  border-radius: 6px;
-  margin: 10px ;
-  background-color: ${({ completed }) => (completed ? '#c6d4b8' : '#fff')};
+const Container = styled.div`
   display: flex;
-  align-items: flex-start; 
-  width: 100%; 
+  justify-content: space-between;
 `;
 
-const TaskCheckbox = styled.input`
-  display: none;
-`;
-
-const CustomCheckbox = styled.span`
-  display: inline-block;
-  width: 15px;
-  height: 15px;
-  border-radius: 5px;
-  border: 2px solid #ccc;
-  background-color: ${({ completed }) => (completed ? '#9c325c' : '#fff')};
-  transition: background-color 0.3s, border-color 0.3s;
-  position: relative;
-  margin: 10px;
-
-  ${TaskCheckbox}:checked + & {
-    background-color: #9c325c;
+const Column = styled.div`
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  padding: 10px;
+  width: 30%;
+  max-height: 500px;
+  margin: 20px;
+  overflow-y: auto;
+  
+  /* Melhorando a aparência da scrollbar */
+  &::-webkit-scrollbar {
+    width: 8px;
   }
-
-  ${TaskCheckbox}:checked + &::after {
-    content: '';
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    width: 5px;
-    height: 5px;
-    background-color: #fff;
-    border-radius: 1px;
+  
+  &::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 4px;
   }
 `;
 
-const DivTask = styled.div`
-  display: flex;
-  flex-direction: column; 
-  justify-content: flex-start; 
+const Task = styled.div`
+  background-color: #6ca6a3;
+  color: white;
+  padding: 2px 10px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #5a8e8b;
+  }
+  
+  /* Adicionando estilo quando arrastando */
+  &:active {
+    transform: scale(1.02);
+  }
 `;
 
-const StyledDivTarefas = styled.div`
-  display: flex;
-  flex-direction: column; 
-  align-items: flex-start; 
-  padding: 10px; 
-`;
-
-const TaskDescricao = styled.p`
-  color: ${({ completed }) => (completed ? '#fff' : '#9c325c')};
+const DivDrag = styled.div`
+  margin-top: 20px;
   font-family: "Jost", sans-serif;
 `;
 
-// Novo estilo para centralizar o título
-const TitleContainer = styled.div`
-  text-align: center; /* Centraliza o texto */
-  width: 100%; /* Ocupa toda a largura */
-  margin-bottom: 20px; /* Espaçamento abaixo do título */
+const Tituloh3 = styled.h3`
+  color: #9c325c;
+  font-family: "Jost", sans-serif;
+  margin-left: 10px;
+  margin-bottom: 15px;
 `;
 
-const Home = () => {
-  const [tasks, setTasks] = useState([]);
+const TaskContent = styled.h4`
+  margin: 8px 0;
+`;
 
-    const fetchTasks = async () => {
-        try {
-          const response = await api.get('/api/tasks');
-          const filteredTasks = response.data.filter(task => task.semana === false);
-          setTasks(filteredTasks)
-      } catch (error) {
-        console.error('Erro ao buscar as tarefas da API:', error);
-      }
-    };
+const TaskDescription = styled.p`
+  font-size: 0.9em;
+  opacity: 0.9;
+`;
 
-  const handleTaskAdded = (newTask) => {
-    setTasks((prevTasks) => [...prevTasks, newTask]);
+const DroppableArea = styled.div`
+  min-height: 200px;
+`;
+
+const Semana = () => {
+  const [tasks, setTasks] = useState({
+    pendentes: [],
+    fazendo: [],
+    feitas: [],
+  });
+
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/tasks');
+      const filteredTasks = response.data.filter(task => task.semana === true);
+
+      const organizedTasks = {
+        pendentes: filteredTasks.map(task => ({
+          id: task.id?.toString() || Math.random().toString(36).substr(2, 9),
+          content: task.name,
+          description: task.description,
+          status: 'pendente',
+        })),
+        fazendo: [],
+        feitas: [],
+      };
+
+      setTasks(organizedTasks);
+    } catch (error) {
+      console.error('Erro ao buscar as tarefas da API:', error);
+    }
   };
 
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  const handleCheckboxChange = (taskId) => {
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === taskId) {
-        return { ...task, completed: !task.completed };
-      }
-      return task;
+  const onDragEnd = (result) => {
+    const { destination, source } = result;
+
+    // Se não houver destino ou o item for solto no mesmo lugar
+    if (!destination || 
+        (destination.droppableId === source.droppableId && 
+         destination.index === source.index)) {
+      return;
+    }
+
+    const sourceColumn = source.droppableId;
+    const destinationColumn = destination.droppableId;
+
+    const sourceTasks = Array.from(tasks[sourceColumn]);
+    const [removedTask] = sourceTasks.splice(source.index, 1);
+    const destinationTasks = Array.from(tasks[destinationColumn]);
+    destinationTasks.splice(destination.index, 0, removedTask);
+
+    setTasks({
+      ...tasks,
+      [sourceColumn]: sourceTasks,
+      [destinationColumn]: destinationTasks,
     });
-    setTasks(updatedTasks);
   };
 
   return (
-    <Divs>
-      <StyledDivTarefas>
-        <TitleContainer>
-          <Tituloh2>Tarefas do dia</Tituloh2>
-        </TitleContainer>
-        {tasks.map((task) => (
-          <TaskItem key={task.id} completed={task.completed}>
-            <label>
-              <TaskCheckbox
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => handleCheckboxChange(task.id)}
-              />
-              <CustomCheckbox completed={task.completed} />
-            </label>
-            <DivTask>
-              <Tituloh4 completed={task.completed}>
-                {task.name}
-              </Tituloh4>
-              <TaskDescricao completed={task.completed}>{task.description}</TaskDescricao>
-            </DivTask>
-          </TaskItem>
-        ))}
-      </StyledDivTarefas>
-      <Grafico tasks={tasks} />
-    </Divs>
+    <DivDrag>
+      <Tituloh2>Tarefas da semana</Tituloh2>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Container>
+          {Object.keys(tasks).map(columnId => (
+            <Droppable key={columnId} droppableId={columnId}>
+              {(provided, snapshot) => (
+                <Column
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  <Tituloh3>
+                    {columnId.charAt(0).toUpperCase() + columnId.slice(1)}
+                  </Tituloh3>
+                  <DroppableArea>
+                    {tasks[columnId].map((task, index) => (
+                      <Draggable
+                        key={task.id}
+                        draggableId={task.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <Task
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={{
+                              ...provided.draggableProps.style,
+                              opacity: snapshot.isDragging ? 0.8 : 1,
+                            }}
+                          >
+                            <TaskContent>{task.content}</TaskContent>
+                            <TaskDescription>{task.description}</TaskDescription>
+                          </Task>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </DroppableArea>
+                </Column>
+              )}
+            </Droppable>
+          ))}
+        </Container>
+      </DragDropContext>
+    </DivDrag>
   );
 };
 
-export default Home;
+export default Semana;
