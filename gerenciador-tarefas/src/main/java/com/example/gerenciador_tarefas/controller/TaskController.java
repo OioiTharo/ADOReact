@@ -32,4 +32,22 @@ public class TaskController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTask(@PathVariable String id) {
+        taskRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Task> updateTask(@PathVariable String id, @RequestBody Task task) {
+        return taskRepository.findById(id)
+            .map(existingTask -> {
+                existingTask.setName(task.getName());
+                existingTask.setDescription(task.getDescription());
+                existingTask.setSemana(task.getSemana()); // Alterado de isSemana() para getSemana()
+                Task updatedTask = taskRepository.save(existingTask);
+                return ResponseEntity.ok(updatedTask);
+            })
+            .orElse(ResponseEntity.notFound().build());
+    }
 }

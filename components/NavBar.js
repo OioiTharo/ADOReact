@@ -38,7 +38,7 @@ const NavBarComponent = () => {
   return (
     <NavBar>
       <Menu>
-        {['/', '/semana', '/adicionar'].map((path, index) => (
+        {['/', '/semana', '/adicionar', '/gerenciar'].map((path, index) => (
           <li key={index}>
             <Link href={path} passHref>
               <MenuItem
